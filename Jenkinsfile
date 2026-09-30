@@ -2,10 +2,22 @@ pipeline {
     agent any
 
     environment {
+        DOCKER_PATH = "C:\\Users\\gayat\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin"
         PATH = "C:\\Users\\gayat\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;${env.PATH}"
     }
 
     stages {
+
+        stage('Check Docker') {
+            steps {
+                echo 'Checking Docker and Docker Compose'
+
+                bat '''
+                docker --version
+                docker-compose --version
+                '''
+            }
+        }
 
         stage('Pull') {
             steps {
@@ -28,7 +40,7 @@ pipeline {
             steps {
                 echo 'Building Order API Docker image'
 
-                bat 'docker compose build order-api'
+                bat 'docker-compose build order-api'
             }
         }
 
@@ -36,7 +48,7 @@ pipeline {
             steps {
                 echo 'Starting complete application'
 
-                bat 'docker compose up -d'
+                bat 'docker-compose up -d'
             }
         }
 
@@ -109,17 +121,17 @@ pipeline {
             echo 'Deployment or verification failed. Displaying logs.'
 
             bat '''
-            docker compose ps -a
-            docker compose logs --tail=100 nginx
-            docker compose logs --tail=100 order-api
-            docker compose logs --tail=100 db
+            docker-compose ps -a
+            docker-compose logs --tail=100 nginx
+            docker-compose logs --tail=100 order-api
+            docker-compose logs --tail=100 db
             '''
         }
 
         always {
             echo 'Stopping application containers while preserving PostgreSQL volume'
 
-            bat 'docker compose down'
+            bat 'docker-compose down'
         }
     }
 }
